@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
+from phonenumber_field.modelfields import PhoneNumberField
 # Create your models here.
 
 
@@ -201,6 +201,12 @@ class User(AbstractBaseUser):
 
 class Driver(models.Model):
     photo = models.ImageField(verbose_name="Фото водителя")
+    birthdate = models.DateField(
+        verbose_name="Дата рождения")
+    phone = PhoneNumberField(null=False, blank=False,
+                             unique=True, verbose_name="Телефон")
+    workExperience = models.IntegerField(
+        default=0, verbose_name="Опыт работы (кол-во лет)")
 
     class Meta:
         verbose_name = "тип машины"
