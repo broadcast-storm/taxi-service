@@ -6,14 +6,28 @@ from datetime import date
 
 
 class News(models.Model):
+    DRAFT = 'draft'
+    PUBLISHED = 'published'
+    STATUS_CHOICES = (
+        (DRAFT, 'Черновик'),
+        (PUBLISHED, 'Опубликована'),
+    )
+
     title = models.CharField(
         max_length=200, verbose_name="Название новости", unique=True)
     description = models.TextField(
         verbose_name="Описание новости", blank=True)
     image = models.ImageField(
         verbose_name="Картинка новости", null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT,
+                              verbose_name="Статус новости")
+
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата создания")
+
+    published_at = models.DateTimeField(
+        blank=True, null=True, verbose_name="Дата публикации")
 
     class Meta:
         verbose_name = "новость"
@@ -106,7 +120,7 @@ class Car(models.Model):
     brand = models.CharField(max_length=20, choices=BRAND_CHOICES, default=LADA,
                              verbose_name="Бренд", )
     releaseYear = models.DateField(
-        verbose_name="Год выпуска", default=date.today)
+        verbose_name="Дата выпуска", default=date.today)
     isPersonal = models.BooleanField(default=False, verbose_name="Личное авто")
 
     class Meta:
@@ -181,8 +195,6 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=100, blank=True, verbose_name="Имя")
     surname = models.CharField(
         max_length=100, blank=True, verbose_name="Фамилия")
-    birthDate = models.DateField(
-        blank=True, null=True, verbose_name="Дата рождения")
 
     class Meta:
         verbose_name = "пользователь"
@@ -223,6 +235,8 @@ class Driver(models.Model):
         on_delete=models.CASCADE,
         primary_key=True,
     )
+    car = models.ForeignKey(
+        Car, on_delete=models.CASCADE, verbose_name="Машина", null=True, blank=True, )
     photo = models.ImageField(
         verbose_name="Фото водителя", blank=True, null=True)
     birthdate = models.DateField(
@@ -288,11 +302,13 @@ class Operator(models.Model):
 
 class Order(models.Model):
     CLIENT_WAITING = 'client_waiting'
+    DRIVER_WAITING = 'driver_waiting'
     CLIENT_CANCELED = 'client_canceled'
     IN_PROGRESS = 'in_progress'
     COMPLETED = 'completed'
     ORDER_STATUS_CHOICES = (
         (CLIENT_WAITING, 'клиент ждет машину'),
+        (DRIVER_WAITING, 'водитель ожидает клиента'),
         (CLIENT_CANCELED, 'клиент отменил заказ'),
         (IN_PROGRESS, 'клиента отвозят'),
         (COMPLETED, 'заказ выполнен'),
@@ -328,6 +344,18 @@ class Order(models.Model):
     scheduledTime = models.DateTimeField(
         auto_now_add=True, verbose_name="Назначенное время", null=True, blank=True,)
 
+    @property
+    def full_client_address(self):
+        address_line = self.town + " ул. " + self.street + \
+            " д. " + self.house + " под." + self.entrance
+        return address_line
+
+    @property
+    def full_destination_address(self):
+        address_line = self.destinationTown + " ул. " + \
+            self.destinationStreet + " д. " + self.destinationHouse
+        return address_line
+
     class Meta:
         verbose_name = "заказ"
         verbose_name_plural = "заказы"
@@ -336,7 +364,7 @@ class Order(models.Model):
     #     return str(self.id)
 
 
-class DriverRaitingComments(models.Model):
+class DriverRaitingComment(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="Клиент")
     driver = models.ForeignKey(
@@ -358,7 +386,7 @@ class DriverRaiting(models.Model):
         User, on_delete=models.CASCADE, verbose_name="Клиент",)
     driver = models.ForeignKey(
         Driver, on_delete=models.CASCADE, verbose_name="Водитель",)
-    price = models.FloatField(default=5.0, verbose_name="Оценка клиента")
+    raiting = models.FloatField(default=5.0, verbose_name="Оценка клиента")
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Время создания")
 
