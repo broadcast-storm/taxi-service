@@ -1,0 +1,11 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "python.linting.pylintArgs": [
+        "--load-plugins",
+        "--errors-only",
+        "pylint_django"
+    ]
+}

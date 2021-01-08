@@ -62,7 +62,7 @@ class Discount(models.Model):
         verbose_name_plural = "скидки"
 
     def __str__(self):
-        return self.promoCode
+        return str(self.discountAmount) + "%"
 
 
 class CarType(models.Model):
@@ -233,7 +233,10 @@ class Driver(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        primary_key=True,
+        # primary_key=True,
+        unique=True,
+        # related_name='user',
+        verbose_name="ФИО"
     )
     car = models.ForeignKey(
         Car, on_delete=models.CASCADE, verbose_name="Машина", null=True, blank=True, )
@@ -256,8 +259,8 @@ class Driver(models.Model):
         verbose_name = "водитель"
         verbose_name_plural = "водители"
 
-    # def __str__(self):
-    #     return str(self.id)
+    def __str__(self):
+        return str(self.user)
 
 
 class Operator(models.Model):
@@ -279,10 +282,12 @@ class Operator(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        primary_key=True,
+        unique=True,
+        # primary_key=True,
+        verbose_name="ФИО"
     )
     photo = models.ImageField(
-        verbose_name="Фото водителя", blank=True, null=True)
+        verbose_name="Фото оператора", blank=True, null=True)
     birthdate = models.DateField(
         verbose_name="Дата рождения")
     phone = PhoneNumberField(
@@ -296,8 +301,8 @@ class Operator(models.Model):
         verbose_name = "оператор"
         verbose_name_plural = "операторы"
 
-    # def __str__(self):
-    #     return str(self.id)
+    def __str__(self):
+        return str(self.user)
 
 
 class Order(models.Model):
@@ -342,12 +347,12 @@ class Order(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Время оформления")
     scheduledTime = models.DateTimeField(
-        auto_now_add=True, verbose_name="Назначенное время", null=True, blank=True,)
+        verbose_name="Когда забрать клиента", null=True, blank=True,)
 
     @property
     def full_client_address(self):
         address_line = self.town + " ул. " + self.street + \
-            " д. " + self.house + " под." + self.entrance
+            " д. " + self.house + " под." + str(self.entrance)
         return address_line
 
     @property
@@ -360,8 +365,8 @@ class Order(models.Model):
         verbose_name = "заказ"
         verbose_name_plural = "заказы"
 
-    # def __str__(self):
-    #     return str(self.id)
+    def __str__(self):
+        return str(self.id)
 
 
 class DriverRaitingComment(models.Model):
@@ -377,8 +382,8 @@ class DriverRaitingComment(models.Model):
         verbose_name = "комментарий клиента"
         verbose_name_plural = "комментарии клиентов"
 
-    # def __str__(self):
-    #     return str(self.id)
+    def __str__(self):
+        return str(self.id)
 
 
 class DriverRaiting(models.Model):
@@ -394,5 +399,5 @@ class DriverRaiting(models.Model):
         verbose_name = "оценка клиента"
         verbose_name_plural = "оценки клиентов"
 
-    # def __str__(self):
-    #     return str(self.id)
+    def __str__(self):
+        return str(self.id)
