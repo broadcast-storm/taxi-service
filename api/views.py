@@ -1,87 +1,236 @@
 from django.shortcuts import render
-from django.contrib.auth import get_user_model, password_validation, logout
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model, password_validation, logout, authenticate
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .utils import get_and_authenticate_user, create_user_account
-from .serializers import NewsSerializer, EmptySerializer, PasswordChangeSerializer, AuthUserSerializer, UserRegisterSerializer, UserLoginSerializer, UserSerializer, DriverSerializer, OperatorSerializer
-from .models import News, Driver, Operator
+from .serializers import NewsSerializer, UserSerializer, DriverSerializer, OperatorSerializer, \
+    OrderSerializer, DriverRaitingCommentSerializer, DriverRaitingSerializer, \
+    DriverRaitingCreateSerializer, DriverRaitingCommentCreateSerializer, OrderListSerializer, \
+    EmptySerializer, DriverShortSerializer, DriverChangeStatusSerializer, OperatorChangeStatusSerializer, \
+    OperatorShortSerializer, OrderChangeStatusSerializer, PriceListSerializer, NewsShortSerializer
 
-# Create your views here.
+from .models import News, Driver, Operator, Order, \
+    DriverRaitingComment, DriverRaiting, PriceList
 
 User = get_user_model()
 
+# ============================================
+# НОВОСТИ
+# ============================================
+
 
 class NewsViewSet(viewsets.ModelViewSet):
-    serializer_class = NewsSerializer
-    queryset = News.objects.all()
+    queryset = News.objects.all().filter(status__in=['published', ],)
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return NewsShortSerializer
+        elif self.action == 'retrieve':
+            return NewsSerializer
+        else:
+            return EmptySerializer
+
+    def create(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Создание новости доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Удаление новости доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def update(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Изменение новости доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# ============================================
+# ВОДИТЕЛИ
+# ============================================
 
 
 class DriverViewSet(viewsets.ModelViewSet):
-    serializer_class = DriverSerializer
     queryset = Driver.objects.all()
 
-
-class OperatorViewSet(viewsets.ModelViewSet):
-    serializer_class = OperatorSerializer
-    queryset = Operator.objects.all()
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-
-class AuthViewSet(viewsets.GenericViewSet):
-    queryset = ''
-    permission_classes = [AllowAny, ]
-    serializer_class = EmptySerializer
-    serializer_classes = {
-        'login': UserLoginSerializer,
-        'register': UserRegisterSerializer,
-        'password_change': PasswordChangeSerializer,
-    }
-
-    @action(methods=['POST', ], detail=False, url_path='login', url_name='login')
-    def login(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = get_and_authenticate_user(**serializer.validated_data)
-        data = AuthUserSerializer(user).data
-        return Response(data=data, status=status.HTTP_200_OK)
-
-    @action(methods=['POST', ], detail=False, url_path='register', url_name='register')
-    def register(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = create_user_account(**serializer.validated_data)
-        data = AuthUserSerializer(user).data
-        return Response(data=data, status=status.HTTP_201_CREATED)
-
-    @action(methods=['POST', ], permission_classes=[IsAuthenticated, ], detail=False, url_path='logout', url_name='logout')
-    def logout(self, request):
-        request.user.auth_token.delete()
-        logout(request)
-        data = {'success': 'Sucessfully logged out'}
-        return Response(data=data, status=status.HTTP_200_OK)
-
-    @action(methods=['POST'], detail=False, permission_classes=[IsAuthenticated, ], url_path='change-password', url_name='change_password')
-    def password_change(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        request.user.set_password(serializer.validated_data['new_password'])
-        request.user.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'update':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if not isinstance(self.serializer_classes, dict):
-            raise ImproperlyConfigured(
-                "serializer_classes should be a dict mapping.")
+        if self.action == 'list':
+            return DriverShortSerializer
+        elif self.action == 'retrieve':
+            return DriverSerializer
+        elif self.action == 'update':
+            return DriverChangeStatusSerializer
+        else:
+            return EmptySerializer
 
-        if self.action in self.serializer_classes.keys():
-            return self.serializer_classes[self.action]
-        return super().get_serializer_class()
+    def create(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Создание водителя доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Удаление водителя доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# ============================================
+# ОПЕРАТОРЫ
+# ============================================
+
+class OperatorViewSet(viewsets.ModelViewSet):
+    queryset = Operator.objects.all()
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return OperatorShortSerializer
+        elif self.action == 'retrieve':
+            return OperatorSerializer
+        elif self.action == 'update':
+            return OperatorChangeStatusSerializer
+        else:
+            return EmptySerializer
+
+    def create(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Создание оператора доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Удаление оператора доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+# ============================================
+# ЗАКАЗЫ
+# ============================================
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return OrderListSerializer
+        elif self.action == 'update':
+            return OrderChangeStatusSerializer
+        else:
+            return OrderSerializer
+
+    def get_permissions(self):
+        if self.action == 'create' or self.action == 'retrieve':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def destroy(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Удаление заказа доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+# ============================================
+# КОММЕНТАРИИ К ВОДИТЕЛЯМ
+# ============================================
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = DriverRaitingComment.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return DriverRaitingCommentCreateSerializer
+        else:
+            return DriverRaitingCommentSerializer
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        elif self.action == 'create':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+
+# ============================================
+# ОЦЕНКИ ВОДИТЕЛЯМ
+# ============================================
+
+class RaitingViewSet(viewsets.ModelViewSet):
+    queryset = DriverRaiting.objects.all()
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return DriverRaitingCreateSerializer
+        else:
+            return DriverRaitingSerializer
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        elif self.action == 'create':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+
+# ============================================
+# СПИСОК ЦЕН
+# ============================================
+
+class PriceListViewSet(viewsets.ModelViewSet):
+    queryset = PriceList.objects.all()
+
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
+    def get_serializer_class(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            return PriceListSerializer
+        else:
+            return EmptySerializer
+
+    def create(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Создание цены маршрута доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def destroy(self, request, pk=None):
+        content = {
+            'NotAllowed': 'Удаление цены доступно только в админ панели'}
+        return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, password_validation
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import BaseUserManager
 from rest_framework import serializers
@@ -8,10 +9,51 @@ from .models import News, PriceList, Discount, CarType, Car, User, Driver, Opera
 User = get_user_model()
 
 
+class EmptySerializer(serializers.Serializer):
+    pass
+
+# ============================================
+# ПОЛЬЗОВАТЕЛИ
+# ============================================
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "name", "surname",
+                  "date_joined", "email", "userType"]
+
+
+class UserShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "name", "surname"]
+
+
+class UserCreateSerializer(UserCreateSerializer):
+    class Meta(UserCreateSerializer.Meta):
+        model = User
+        fields = ('id', 'email', 'name', 'surname', 'password', 'userType')
+
+# ============================================
+# НОВОСТИ
+# ============================================
+
+
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
         fields = ["id", "title", "image", "description", "created_at"]
+
+
+class NewsShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ["id", "title", "created_at"]
+
+# ============================================
+# СПИСОК ЦЕН
+# ============================================
 
 
 class PriceListSerializer(serializers.ModelSerializer):
@@ -20,18 +62,27 @@ class PriceListSerializer(serializers.ModelSerializer):
         fields = ["id", "price", "startTown", "endTown"]
 
 
+# ============================================
+# СКИДКИ
+# ============================================
 class DiscountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
         fields = ["id", "discountAmount", "promoCode"]
 
 
+# ============================================
+# ТИПЫ МАШИН
+# ============================================
 class CarTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CarType
         fields = ["id", "typeName", "typeDescription"]
 
 
+# ============================================
+# МАШИНЫ
+# ============================================
 class CarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
@@ -42,103 +93,21 @@ class CarSerializer(serializers.ModelSerializer):
 class CarShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Car
-        fields = ["id", "licensePlate"]
+        fields = ["id", "color", "brand", "licensePlate"]
 
 
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "name", "surname",
-                  "date_joined", "email", "userType"]
-
-
-# class UserRegistrationSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True)
-
-#     class Meta:
-#         model = User
-#         fields = ["name", "surname", "email", "password"]
-
-
-class UserLoginSerializer(serializers.Serializer):
-    email = serializers.CharField(max_length=300, required=True)
-    password = serializers.CharField(required=True, write_only=True)
-
-
-class UserRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'password', 'name', 'surname')
-
-    def validate_email(self, value):
-        user = User.objects.filter(email=value)
-        if user:
-            raise serializers.ValidationError("Email is already taken")
-        return BaseUserManager.normalize_email(value)
-
-    def validate_password(self, value):
-        password_validation.validate_password(value)
-        return value
-
-
-class AuthUserSerializer(serializers.ModelSerializer):
-    auth_token = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'name', 'surname',
-                  'userType', 'auth_token')
-        read_only_fields = ('id', 'is_active', 'is_staff')
-
-    def get_auth_token(self, obj):
-        token = Token.objects.create(user=obj)
-        return token.key
-
-
-class PasswordChangeSerializer(serializers.Serializer):
-    current_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
-
-    def validate_current_password(self, value):
-        if not self.context['request'].user.check_password(value):
-            raise serializers.ValidationError(
-                'Current password does not match')
-        return value
-
-    def validate_new_password(self, value):
-        password_validation.validate_password(value)
-        return value
-
-
-class EmptySerializer(serializers.Serializer):
-    pass
-
-
+# ============================================
+# ВОДИТЕЛИ
+# ============================================
 class DriverSerializer(serializers.ModelSerializer):
 
-    user_details = UserSerializer(source="user")
+    user_details = UserShortSerializer(source="user")
     car_details = CarShortSerializer(source="car")
 
     class Meta:
         model = Driver
-        fields = ["id", "user_details", "car_details", "photo", "birthdate",
-                  "phone", "workExperience", "driverLicense", "licenseDate", "driverStatus"]
-
-
-class OperatorSerializer(serializers.ModelSerializer):
-
-    user_details = UserSerializer(source="user")
-
-    class Meta:
-        model = Operator
-        fields = ["id", "user_details", "photo", "birthdate",
-                  "phone", "workExperience", "operatorStatus"]
-
-
-class UserShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "name", "surname"]
+        fields = ["id", "user_details", "car_details", "photo",
+                  "phone", "workExperience", "driverStatus"]
 
 
 class DriverShortSerializer(serializers.ModelSerializer):
@@ -148,7 +117,27 @@ class DriverShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Driver
-        fields = ["id", "user_details", "car_details"]
+        fields = ["id", "user_details", "car_details", "driverStatus"]
+
+
+class DriverChangeStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Driver
+        fields = ["driverStatus", ]
+
+
+# ============================================
+# ОПЕРАТОРЫ
+# ============================================
+class OperatorSerializer(serializers.ModelSerializer):
+
+    user_details = UserShortSerializer(source="user")
+
+    class Meta:
+        model = Operator
+        fields = ["id", "user_details", "photo",
+                  "phone", "operatorStatus"]
 
 
 class OperatorShortSerializer(serializers.ModelSerializer):
@@ -157,10 +146,38 @@ class OperatorShortSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Operator
-        fields = ["id", "user_details"]
+        fields = ["id", "user_details", "operatorStatus"]
 
 
+class OperatorChangeStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Operator
+        fields = ["operatorStatus", ]
+
+
+# ============================================
+# ЗАКАЗЫ
+# ============================================
 class OrderSerializer(serializers.ModelSerializer):
+
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Order
+        fields = ["id", "user", "discount", "town", "street", "house", "entrance",
+                  "destinationTown", "destinationStreet", "destinationHouse", "created_at", "scheduledTime"]
+
+
+class OrderChangeStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ["orderStatus", ]
+
+
+class OrderListSerializer(serializers.ModelSerializer):
 
     full_client_address = serializers.CharField(read_only=True)
     full_destination_address = serializers.CharField(read_only=True)
@@ -172,10 +189,12 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ["id", "user_details", "driver_details", "discount_details", "full_client_address", "full_destination_address",
-                  "price", "unauthorizedUser", "town", "street", "house", "entrance",
-                  "destinationTown", "destinationStreet", "destinationHouse", "orderStatus", "created_at", "scheduledTime"]
+                  "price", "unauthorizedUser", "orderStatus", "created_at", "scheduledTime"]
 
 
+# ============================================
+# КОММЕНТАРИИ К ВОДИТЕЛЯМ
+# ============================================
 class DriverRaitingCommentSerializer(serializers.ModelSerializer):
 
     user_details = UserShortSerializer(source="user", read_only=True)
@@ -184,6 +203,21 @@ class DriverRaitingCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = DriverRaitingComment
         fields = ["id", "user_details", "driver_details", "text", "created_at"]
+
+
+class DriverRaitingCommentCreateSerializer(serializers.ModelSerializer):
+
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = DriverRaitingComment
+        fields = ["user", "driver", "text", ]
+
+
+# ============================================
+# ОЦЕНКИ ВОДИТЕЛЕЙ
+# ============================================
 
 
 class DriverRaitingSerializer(serializers.ModelSerializer):
@@ -195,3 +229,13 @@ class DriverRaitingSerializer(serializers.ModelSerializer):
         model = DriverRaiting
         fields = ["id", "user_details",
                   "driver_details", "raiting", "created_at"]
+
+
+class DriverRaitingCreateSerializer(serializers.ModelSerializer):
+
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = DriverRaiting
+        fields = ["user", "driver", "raiting", ]

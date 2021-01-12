@@ -1,8 +1,12 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from phonenumber_field.modelfields import PhoneNumberField
 from datetime import date
-# Create your models here.
+
+# ============================================
+# НОВОСТИ
+# ============================================
 
 
 class News(models.Model):
@@ -37,12 +41,27 @@ class News(models.Model):
         return self.title
 
 
+# ============================================
+# СПИСОК ЦЕН
+# ============================================
+
 class PriceList(models.Model):
-    price = models.IntegerField(default=0, verbose_name="Цена")
+    TOWN_CHOICES = (
+        ('Ramenskoe', 'Раменское'),
+        ('Kratovo', 'Кратово'),
+        ('Zukovski', 'Жуковский'),
+        ('Bronici', 'Бронницы'),
+        ('Minino', 'Минино'),
+        ('Ghel', 'Гжель'),
+        ('Kosherovo', 'Кошерово'),
+        ('Konyashino', 'Коняшино'),
+    )
+    price = models.IntegerField(default=150, validators=[MinValueValidator(
+        150), MaxValueValidator(10000)],  verbose_name="Цена")
     startTown = models.CharField(
-        max_length=200, verbose_name="Начальный насел. пункт", unique=True)
+        max_length=200, verbose_name="Начальный насел. пункт", choices=TOWN_CHOICES, default='Ramenskoe')
     endTown = models.CharField(
-        max_length=200, verbose_name="Конечный насел. пункт", unique=True)
+        max_length=200, verbose_name="Конечный насел. пункт", choices=TOWN_CHOICES, default='Ramenskoe', )
 
     class Meta:
         verbose_name = "цена"
@@ -52,10 +71,15 @@ class PriceList(models.Model):
         return self.startTown + " - " + self.endTown
 
 
+# ============================================
+# СКИДКИ
+# ============================================
+
 class Discount(models.Model):
-    discountAmount = models.IntegerField(default=0, verbose_name="Скидка в %")
+    discountAmount = models.IntegerField(default=0, validators=[MinValueValidator(
+        0), MaxValueValidator(100)],  verbose_name="Скидка в %")
     promoCode = models.CharField(
-        max_length=200, verbose_name="Промокод", unique=True)
+        max_length=6, verbose_name="Промокод", unique=True, validators=[RegexValidator(r'^[A-Z0-9]*$', 'Можно использовать буквы A-Z и цифры 0-9')])
 
     class Meta:
         verbose_name = "скидка"
@@ -64,6 +88,10 @@ class Discount(models.Model):
     def __str__(self):
         return str(self.discountAmount) + "%"
 
+
+# ============================================
+# ТИПЫ МАШИН
+# ============================================
 
 class CarType(models.Model):
     typeName = models.CharField(
@@ -78,6 +106,10 @@ class CarType(models.Model):
     def __str__(self):
         return self.typeName
 
+
+# ============================================
+# МАШИНЫ
+# ============================================
 
 class Car(models.Model):
     YELLOW = 'yellow'
@@ -114,7 +146,7 @@ class Car(models.Model):
         CarType, on_delete=models.CASCADE, verbose_name="Тип авто")
 
     licensePlate = models.CharField(
-        max_length=120, verbose_name="Номер авто")
+        max_length=9, validators=[RegexValidator(r'^[АВЕКМНОРСТУХ]\d{3}(?<!000)[АВЕКМНОРСТУХ]{2}\d{2,3}$', 'Пример номера: А123ВЕ456')], verbose_name="Номер авто")
     color = models.CharField(max_length=20, choices=COLOR_CHOICES, default=WHITE,
                              verbose_name="Цвет авто")
     brand = models.CharField(max_length=20, choices=BRAND_CHOICES, default=LADA,
@@ -131,8 +163,11 @@ class Car(models.Model):
         return self.licensePlate
 
 
+# ============================================
+# ИНДИВИДУАЛЬНАЯ МОДЕЛЬ ПОЛЬЗОВАТЕЛЯ
+# ============================================
 class UserProfileManager(BaseUserManager):
-    def create_user(self, email, name, surname, password=None):
+    def create_user(self, email, name, surname, password=None,  **extra_fields):
         if not email:
             raise ValueError('Users must have an email address')
         if not name:
@@ -144,27 +179,33 @@ class UserProfileManager(BaseUserManager):
             email=self.normalize_email(email),
             surname=surname,
             name=name,
+            **extra_fields
         )
 
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, name, surname, password=None):
+    def create_superuser(self, email, name, surname, password=None, **extra_fields):
+
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_admin', True)
+        extra_fields.setdefault('userType', 'admin')
 
         user = self.create_user(
             email=self.normalize_email(email),
             password=password,
             surname=surname,
             name=name,
+            **extra_fields
         )
-        user.is_admin = True
-        user.userType = 'admin'
         user.save(using=self._db)
         return user
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     ADMIN = 'admin'
     USER = 'user'
     DRIVER = 'driver'
@@ -180,9 +221,12 @@ class User(AbstractBaseUser):
     date_joined = models.DateTimeField(
         auto_now_add=True, verbose_name="Зарегистрировался")
     last_login = models.DateTimeField(auto_now=True, verbose_name="Был в сети")
-    is_admin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(
+        default=False, verbose_name="Может вносить изменения в данные")
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(
+        default=False, verbose_name="Доступ в админ панель")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['name', 'surname']
@@ -209,10 +253,10 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    @property
-    def is_staff(self):
-        return self.is_admin
 
+# ============================================
+# ВОДИТЕЛИ
+# ============================================
 
 class Driver(models.Model):
     ON_ORDER = 'on_order'
@@ -233,9 +277,7 @@ class Driver(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        # primary_key=True,
         unique=True,
-        # related_name='user',
         verbose_name="ФИО"
     )
     car = models.ForeignKey(
@@ -247,9 +289,9 @@ class Driver(models.Model):
     phone = PhoneNumberField(
         unique=True, verbose_name="Телефон")
     workExperience = models.IntegerField(
-        default=0, verbose_name="Опыт работы (кол-во лет)")
+        default=0, validators=[MinValueValidator(0), MaxValueValidator(100)],  verbose_name="Опыт работы (кол-во лет)")
     driverLicense = models.CharField(
-        max_length=100, verbose_name="Водительские права", unique=True)
+        max_length=100, verbose_name="Водительские права", validators=[RegexValidator(r'^[A-Z](?:\d[- ]*){14}$', 'Пример водительских прав: D6101-40706-60905')],  unique=True)
     licenseDate = models.DateField(
         verbose_name="Дата получения прав")
     driverStatus = models.CharField(max_length=30, choices=DRIVER_STATUS_CHOICES, default=NONWORKING_TIME,
@@ -262,6 +304,10 @@ class Driver(models.Model):
     def __str__(self):
         return str(self.user)
 
+
+# ============================================
+# ОПЕРАТОРЫ
+# ============================================
 
 class Operator(models.Model):
     SERVE_CLIENT = 'serve_client'
@@ -283,7 +329,6 @@ class Operator(models.Model):
         User,
         on_delete=models.CASCADE,
         unique=True,
-        # primary_key=True,
         verbose_name="ФИО"
     )
     photo = models.ImageField(
@@ -293,7 +338,7 @@ class Operator(models.Model):
     phone = PhoneNumberField(
         unique=True, verbose_name="Телефон")
     workExperience = models.IntegerField(
-        default=0, verbose_name="Опыт работы (кол-во лет)")
+        default=0, validators=[MinValueValidator(0), MaxValueValidator(100)],  verbose_name="Опыт работы (кол-во лет)")
     operatorStatus = models.CharField(max_length=30, choices=OPERATOR_STATUS_CHOICES, default=NONWORKING_TIME,
                                       verbose_name="Статус оператора")
 
@@ -304,6 +349,10 @@ class Operator(models.Model):
     def __str__(self):
         return str(self.user)
 
+
+# ============================================
+# ЗАКАЗЫ
+# ============================================
 
 class Order(models.Model):
     CLIENT_WAITING = 'client_waiting'
@@ -319,6 +368,17 @@ class Order(models.Model):
         (COMPLETED, 'заказ выполнен'),
     )
 
+    TOWN_CHOICES = (
+        ('Ramenskoe', 'Раменское'),
+        ('Kratovo', 'Кратово'),
+        ('Zukovski', 'Жуковский'),
+        ('Bronici', 'Бронницы'),
+        ('Minino', 'Минино'),
+        ('Ghel', 'Гжель'),
+        ('Kosherovo', 'Кошерово'),
+        ('Konyashino', 'Коняшино'),
+    )
+
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="Клиент", null=True, blank=True, )
     driver = models.ForeignKey(
@@ -329,19 +389,19 @@ class Order(models.Model):
     unauthorizedUser = models.CharField(
         null=True, blank=True, max_length=100, verbose_name="Неавторизованный клиент")
     town = models.CharField(
-        max_length=100, verbose_name="Город")
+        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default='Ramenskoe')
     street = models.CharField(
         max_length=100, verbose_name="Улица")
-    house = models.CharField(
-        max_length=100, verbose_name="Дом")
+    house = models.IntegerField(default=1, validators=[
+                                MinValueValidator(1)], verbose_name="Дом")
     entrance = models.IntegerField(
-        default=1, verbose_name="Подъезд")
+        default=1, validators=[MinValueValidator(1)], verbose_name="Подъезд")
     destinationTown = models.CharField(
-        max_length=100, verbose_name="Город")
+        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default='Ramenskoe')
     destinationStreet = models.CharField(
         max_length=100, verbose_name="Улица")
-    destinationHouse = models.CharField(
-        max_length=100, verbose_name="Дом")
+    destinationHouse = models.IntegerField(
+        default=1, validators=[MinValueValidator(1)], verbose_name="Дом")
     orderStatus = models.CharField(max_length=30, choices=ORDER_STATUS_CHOICES, default=CLIENT_WAITING,
                                    verbose_name="Статус заказа")
     created_at = models.DateTimeField(
@@ -369,6 +429,10 @@ class Order(models.Model):
         return str(self.id)
 
 
+# ============================================
+# КОММЕНТАРИИ К ВОДИТЕЛЯМ
+# ============================================
+
 class DriverRaitingComment(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="Клиент")
@@ -386,12 +450,17 @@ class DriverRaitingComment(models.Model):
         return str(self.id)
 
 
+# ============================================
+# ОЦЕНКИ ВОДИТЕЛЕЙ
+# ============================================
+
 class DriverRaiting(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="Клиент",)
     driver = models.ForeignKey(
         Driver, on_delete=models.CASCADE, verbose_name="Водитель",)
-    raiting = models.FloatField(default=5.0, verbose_name="Оценка клиента")
+    raiting = models.IntegerField(default=5, validators=[MinValueValidator(
+        0), MaxValueValidator(5)], verbose_name="Оценка клиента")
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Время создания")
 

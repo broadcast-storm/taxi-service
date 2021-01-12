@@ -141,11 +141,6 @@ class CarAdmin(ImportExportActionModelAdmin):
 
 
 class UserProfileAdmin(UserAdmin):
-
-    # def get_queryset(self, request):
-    #     qs = super().get_queryset(request)
-    #     return qs.filter(userType__in=['admin', 'user'],)
-
     ordering = ('email',)
     list_filter = ('userType',)
     list_display = ('email', 'name', 'surname',
@@ -163,10 +158,22 @@ class UserProfileAdmin(UserAdmin):
     filter_horizontal = ()
 
 
-class UserInline(admin.TabularInline):
+class UserOperatorInline(admin.TabularInline):
     model = User
     fieldsets = (
-        (None, {'fields': ('name', 'surname', "email", 'userType',
+        (None, {'fields': ('name', 'surname', "email", 'password', 'userType', 'is_staff', 'is_admin',
+                           "last_login", "date_joined")}),
+    )
+    readonly_fields = ('date_joined', 'last_login')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class UserDriverInline(admin.TabularInline):
+    model = User
+    fieldsets = (
+        (None, {'fields': ('name', 'surname', "email", 'password', 'userType',
                            "last_login", "date_joined")}),
     )
     readonly_fields = ('date_joined', 'last_login')
@@ -181,7 +188,7 @@ class DriverAdmin(ReverseModelAdmin):
     inline_reverse = [
         {
             'field_name': 'user',
-            'admin_class': UserInline
+            'admin_class': UserDriverInline
         },
 
     ]
@@ -204,7 +211,7 @@ class OperatorAdmin(ReverseModelAdmin):
     inline_reverse = [
         {
             'field_name': 'user',
-            'admin_class': UserInline
+            'admin_class': UserOperatorInline
         },
     ]
     list_filter = ('operatorStatus',)
@@ -280,13 +287,6 @@ class OrderAdmin(ImportExportActionModelAdmin):
     list_display = ("id", 'user_link', 'unauthorized', 'driver_link', 'discount_link', 'price',
                     'client_address', 'destination_address', "orderStatus", "scheduledTime", "created_at")
     search_fields = ('town', 'destinationTown')
-    # fieldsets = ((None, {
-    #     'fields': (
-    #         'licensePlate', 'color',
-    #         'brand', 'releaseYear',
-    #         'carType', 'isPersonal'
-    #     )
-    # }),)
     filter_horizontal = ()
 
 
