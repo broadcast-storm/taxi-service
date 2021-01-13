@@ -270,7 +270,7 @@ class OrderAdmin(ImportExportActionModelAdmin):
 
     def client_address(self, obj: Order):
         address_line = obj.town + " ул. " + obj.street + \
-            " д. " + obj.house + " под." + str(obj.entrance)
+            " д. " + str(obj.house) + " под." + str(obj.entrance)
         return address_line
 
     client_address.short_description = 'Адрес клиента'
@@ -278,7 +278,7 @@ class OrderAdmin(ImportExportActionModelAdmin):
 
     def destination_address(self, obj: Order):
         address_line = obj.destinationTown + " ул. " + \
-            obj.destinationStreet + " д. " + obj.destinationHouse
+            obj.destinationStreet + " д. " + str(obj.destinationHouse)
         return address_line
 
     destination_address.short_description = 'Конечный адрес'
