@@ -25,7 +25,7 @@ SECRET_KEY = 'h83=gy+zr&x*7)vzla%#5jimryiz#6n05x=2(ttim_nlol4&k8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['taxi-service.std-884.ist.mospolytech.ru', '127.0.0.1']
 
 
 # Application definition
