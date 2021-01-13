@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сервис заказа такси</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
+    <link rel="manifest" href="favicon/site.webmanifest">
+    <link rel="mask-icon" href="favicon/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+
+    <meta name="theme-color" content="#ffffff">
+    <meta name="description" content="Сервис заказа такси">
+</head>
+<body>
+    <nav class="navbar navbar-dark navbar-expand-md  fixed-top nav-custom">
+        <a class="navbar-brand" href="#"><img src="./img/logo.png"  height="27" class="d-inline-block align-top" alt="" loading="lazy">
+           <span class="custom-gray-color">Сервис заказа</span>
+           <span class="custom-color">Такси</span> </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link link-custom" href="#aboutProject">О проекте</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-custom" href="#Tasks">Задачи</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-custom" href="#developers">Разработчик</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link link-custom" href="#technologies">Технологии</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      
+      
+      
+      <main role="main">
+
+        <div class="position-relative overflow-hidden p-3 p-md-5 text-center top-header" id="aboutProject">
+          <div class="back-dark-color"></div>
+            <div class="col-md-6 p-lg-5">
+              <h1 class="display-4 font-weight-normal mb-5 custom-gray-color">Сервис заказа <span class="custom-color gamification">Такси</span> </h1>
+              <a class="btn btn-secondary btn-lg cstm-btn-main" href="http://yandex-gamification.std-884.ist.mospolytech.ru" target="_blank">На сайт</a>
+              <a class="btn btn-secondary btn-lg cstm-btn-second" href="https://github.com/nikita220800/taxi-service" target="_blank">На GitHub</a>
+            </div>
+          </div>
+          
+        <div class="container">
+
+            <div class="jumbotron about-project mb-0 pb-0 px-0">
+                <h2 class="display-4 mb-5">О проекте</h2>
+                <p class="lead"><strong class="custom-color">Описание проблемы</strong> -  необходимо разработать базу данных и административный интерфейс для приложения, 
+                  предметной областью которого является сервис заказа такси.</p>
+                  <p class="lead"><strong class="custom-color">Основная цель</strong> - проектирование и создание реляционной базы данных для веб-сервиса по заказу такси и дальнейшая 
+                    настройка административной панели для управления данной базой данных с помощью фреймворка Django.  </p>
+
+            </div>
+
+            <hr class="featurette-divider">
+        
+            
+        <div class="description">
+          <h2 class="display-4 mb-5" id="Tasks">Задачи</h2>
+          <div class="row" >
+            <div class="col-lg-6 text-center">
+              <div class="task-img">
+                <div class="back-dark-color2"></div>
+                <img src="./img/tasks/bd.jpg" alt="">
+              </div>
+              <h2 class="custom-color">Разработка структуры базы данных</h2>
+              <p>Создание схемы базы данных, описание моделей в Django и их сериализация </p>
+            </div>
+            <div class="col-lg-6 text-center">
+              <div class="task-img">
+                <div class="back-dark-color2"></div>
+                <img src="./img/tasks/django.jpg" alt="">
+              </div>
+              <h2 class="custom-color">Backend на Django + Django Rest Framework</h2>
+              <p>Настройка Админ панели, API Route'ов, авторизации пользователей по токенам</p>
+            </div>
+            <div class="col-lg-6 text-center">
+              <div class="task-img">
+                <div class="back-dark-color2"></div>
+                <img src="./img/tasks/roles.png" alt="">
+              </div>
+              <h2 class="custom-color">Роли пользователей</h2>
+              <p>Распределить функциональные возможности для разных ролей (админ, оператор, водитель, обычный пользователь)</p>
+            </div>
+            <div class="col-lg-6 text-center">
+              <div class="task-img">
+                <div class="back-dark-color2"></div>
+                <img src="./img/tasks/server.jpg" alt="">
+              </div>
+              <h2 class="custom-color">Запуск проекта на сервере</h2>
+             <p>Деплой проекта на сервер fit.mospolytech</p>
+            </div>
+          </div>
+      
+          <hr class="featurette-divider" id="developers">
+      
+          <h2 class="display-4 mb-5" >Разработчик</h2>
+
+
+          <div id="carouselExampleCaptions" class="carousel slide custom-carousel" data-ride="carousel">
+          
+            
+            
+            <ol class="carousel-indicators">
+              <li data-target="#carouselExampleCaptions" data-slide-to="0" class="active"></li>
+            </ol>
+
+            <div class="carousel-inner">
+              <div class="back-dark-color2"></div>
+              <div class="carousel-item active" height="300px">
+                <div class="carousel-caption d-md-block">
+                  <div class="custom-container">
+                      <div class="card custom-item" style="width: 18rem;">
+                        <div class="custom-img-container"><img src="./img/developers/pozdnyakov.jpg" class="card-img-top custom-img" alt=""></div>
+                        <div class="card-body">
+                          <h5 class="card-title">Никита Поздняков</h5>
+                          <p class="card-text">Группа 181-322 <br/></p>
+                          <a href="https://github.com/nikita220800" class="btn btn-primary cstm-btn-main" target="_blank" rel="noopener noreferrer">Профиль в GitHub</a>
+                        </div>
+                      </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <hr class="featurette-divider" id="technologies">
+
+          <h2 class="display-4 mb-5">Используемые технологии</h2>
+          <div class="album pb-5">
+        
+              <div class="row">
+
+                <div class="col-md-4">
+                  <div class="card mb-4 shadow-sm technology">
+                    <a href="https://www.djangoproject.com" target="_blank" rel="noopener noreferrer" class="tech-link">
+                      <img src="./img/technologies/django.jpg" alt="">
+                  </a>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="card mb-4 shadow-sm technology">
+                    <a href="https://www.django-rest-framework.org" target="_blank" rel="noopener noreferrer" class="tech-link">
+                      <img src="./img/technologies/drf.jpg" alt="">
+                  </a>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <div class="card mb-4 shadow-sm technology">
+                    <a href="https://www.postman.com/" target="_blank" rel="noopener noreferrer" class="tech-link">
+                      <img src="./img/technologies/postman.jpg" alt="">
+                  </a>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+        </div>
+
+        <hr class="featurette-divider" id="technologies">
+
+        <h2 class="display-4 mb-5">Видео демонстрация</h2>
+        <iframe width="100%" height="375" src="https://www.youtube.com/embed/1K3H7-g5oAM" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        
+        <hr class="featurette-divider" id="technologies">
+
+        <h2 class="display-4 mb-5">Презентация</h2>
+        <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQbMTJWGdgp0_peBSw5GskiigosrCrf2a5GYXUfut7p91QQVZtxcCJqozf6VxsscQ/embed?start=false&loop=false&delayms=3000" frameborder="0" width="100%" height="480" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+
+      </div>
+      <footer class=" py-5 mt-5">
+        <div class="container">
+    
+          <div class=" text-center">
+            <img src="./img/polytech.png" alt="Лого Политеха" height="70px">
+          </div>
+    
+      </div>
+      <small class="d-block mt-5 text-center">&copy; 2021</small>
+      </footer> 
+      </main>
+
+      <script src="./js/jquery-3.5.1.slim.min.js"></script>
+      <script src="./js/bootstrap.bundle.min.js"></script>
+      
+</body>
+</html>
