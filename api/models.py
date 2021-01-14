@@ -421,7 +421,7 @@ class Order(models.Model):
     @property
     def full_client_address(self):
         address_line = self.town + " ул. " + self.street + \
-            " д. " + self.house + " под." + str(self.entrance)
+            " д. " + self.house + " под." + self.entrance
         return address_line
 
     @property
