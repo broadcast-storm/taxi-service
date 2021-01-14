@@ -368,15 +368,24 @@ class Order(models.Model):
         (COMPLETED, 'заказ выполнен'),
     )
 
+    RAM = 'Ramenskoe'
+    KRAT = 'Kratovo'
+    ZUK = 'Zukovski'
+    BRON = 'Bronici'
+    MIN = 'Minino'
+    GHEL = 'Ghel'
+    KOSH = 'Kosherovo'
+    KON = 'Konyashino'
+
     TOWN_CHOICES = (
-        ('Ramenskoe', 'Раменское'),
-        ('Kratovo', 'Кратово'),
-        ('Zukovski', 'Жуковский'),
-        ('Bronici', 'Бронницы'),
-        ('Minino', 'Минино'),
-        ('Ghel', 'Гжель'),
-        ('Kosherovo', 'Кошерово'),
-        ('Konyashino', 'Коняшино'),
+        (RAM, 'Раменское'),
+        (KRAT, 'Кратово'),
+        (ZUK, 'Жуковский'),
+        (BRON, 'Бронницы'),
+        (MIN, 'Минино'),
+        (GHEL, 'Гжель'),
+        (KOSH, 'Кошерово'),
+        (KON, 'Коняшино'),
     )
 
     user = models.ForeignKey(
@@ -389,7 +398,7 @@ class Order(models.Model):
     unauthorizedUser = models.CharField(
         null=True, blank=True, max_length=100, verbose_name="Неавторизованный клиент")
     town = models.CharField(
-        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default='Ramenskoe')
+        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default=RAM)
     street = models.CharField(
         max_length=100, verbose_name="Улица")
     house = models.IntegerField(default=1, validators=[
@@ -397,7 +406,7 @@ class Order(models.Model):
     entrance = models.IntegerField(
         default=1, validators=[MinValueValidator(1)], verbose_name="Подъезд")
     destinationTown = models.CharField(
-        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default='Ramenskoe')
+        max_length=100, verbose_name="Город", choices=TOWN_CHOICES, default=RAM)
     destinationStreet = models.CharField(
         max_length=100, verbose_name="Улица")
     destinationHouse = models.IntegerField(
