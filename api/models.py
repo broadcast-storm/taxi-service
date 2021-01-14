@@ -421,13 +421,13 @@ class Order(models.Model):
     @property
     def full_client_address(self):
         address_line = self.town + " ул. " + self.street + \
-            " д. " + self.house + " под." + self.entrance
+            " д. " + str(self.house) + " под." + str(self.entrance)
         return address_line
 
     @property
     def full_destination_address(self):
         address_line = self.destinationTown + " ул. " + \
-            self.destinationStreet + " д. " + self.destinationHouse
+            self.destinationStreet + " д. " + str(self.destinationHouse)
         return address_line
 
     class Meta:
