@@ -233,6 +233,26 @@ class OrderResource(resources.ModelResource):
 class OrderAdmin(ImportExportActionModelAdmin):
     resource_class = OrderResource
 
+    RAM = 'Ramenskoe'
+    KRAT = 'Kratovo'
+    ZUK = 'Zukovski'
+    BRON = 'Bronici'
+    MIN = 'Minino'
+    GHEL = 'Ghel'
+    KOSH = 'Kosherovo'
+    KON = 'Konyashino'
+
+    TOWN_CHOICES = {
+        RAM: 'Раменское',
+        KRAT: 'Кратово',
+        ZUK: 'Жуковский',
+        BRON: 'Бронницы',
+        MIN: 'Минино',
+        GHEL: 'Гжель',
+        KOSH: 'Кошерово',
+        KON: 'Коняшино',
+    }
+
     def user_link(self, obj: Order):
         if obj.user == None:
             return 'Нет в приложении'
@@ -269,7 +289,7 @@ class OrderAdmin(ImportExportActionModelAdmin):
     unauthorized.admin_order_field = 'неавторизованный клиент'
 
     def client_address(self, obj: Order):
-        address_line = obj.town + " ул. " + obj.street + \
+        address_line = (self.TOWN_CHOICES.get(obj.town) if self.TOWN_CHOICES.get(obj.town) != None else obj.town) + " ул. " + obj.street + \
             " д. " + str(obj.house) + " под." + str(obj.entrance)
         return address_line
 
@@ -277,7 +297,7 @@ class OrderAdmin(ImportExportActionModelAdmin):
     client_address.admin_order_field = 'адрес клиента'
 
     def destination_address(self, obj: Order):
-        address_line = obj.destinationTown + " ул. " + \
+        address_line = (self.TOWN_CHOICES.get(obj.destinationTown) if self.TOWN_CHOICES.get(obj.destinationTown) != None else obj.destinationTown) + " ул. " + \
             obj.destinationStreet + " д. " + str(obj.destinationHouse)
         return address_line
 
