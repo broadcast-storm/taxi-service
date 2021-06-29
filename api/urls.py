@@ -2,9 +2,15 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import NewsViewSet, DriverViewSet, \
     OperatorViewSet, OrderViewSet, CommentViewSet, RaitingViewSet, \
-    PriceListViewSet
+    PriceListViewSet, LogoutAllView, LogoutView
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 router = DefaultRouter()
+
+
 
 router.register(r'news', NewsViewSet, basename='news')
 router.register(r'drivers', DriverViewSet, basename='drivers')
@@ -17,7 +23,8 @@ router.register(r'price-list', PriceListViewSet, basename='price-list')
 
 urlpatterns = [
     path("", include(router.urls)),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
-    path("rest-auth/", include('rest_framework.urls')),
+    path('login', TokenObtainPairView.as_view(), name='login'),
+    path('logout', LogoutView.as_view(), name='auth_logout'),
+    path('logout-all', LogoutAllView.as_view(), name='auth_logout_all'),
+    path('refresh-token', TokenRefreshView.as_view(), name='refresh-token'),
 ]

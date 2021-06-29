@@ -1,3 +1,4 @@
+.vscode
 .DS_Store
 node_modules
 /dist
@@ -7,11 +8,16 @@ venv/
 *.sqlite3
 media/**.*
 logs/*.log
-
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/dist/**.*
 # local env files
 core/.env
+frontend/.env.production
+frontend/.env.development
 .env.local
 .env.*.local
+api/migrations
 
 # Log files
 npm-debug.log*

@@ -8,6 +8,9 @@ from rest_framework import viewsets
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .utils import get_and_authenticate_user, create_user_account
 from .serializers import NewsSerializer, UserSerializer, DriverSerializer, OperatorSerializer, \
@@ -234,3 +237,30 @@ class PriceListViewSet(viewsets.ModelViewSet):
         content = {
             'NotAllowed': 'Удаление цены доступно только в админ панели'}
         return Response(content, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class LogoutView(APIView):
+    permission_classes = (AllowAny,)
+
+    @staticmethod
+    def post(request):
+        try:
+            token = RefreshToken(request.data["refresh_token"])
+            token.blacklist()
+
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            print(e)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutAllView(APIView):
+    permission_classes = (AllowAny,)
+
+    @staticmethod
+    def post(self, request):
+        tokens = OutstandingToken.objects.filter(user_id=request.user.id)
+        for token in tokens:
+            t, _ = BlacklistedToken.objects.get_or_create(token=token)
+
+        return Response(status=status.HTTP_205_RESET_CONTENT)
