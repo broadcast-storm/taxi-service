@@ -5,6 +5,11 @@ const routesList = {
         children: {
             newsPage: {
                 path: '/news',
+                children: {
+                    openedNews: {
+                        path: '/news/:id',
+                    },
+                },
             },
             pricesPage: {
                 path: '/prices',

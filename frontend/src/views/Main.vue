@@ -1,7 +1,19 @@
 <template>
     <div class="relative min-h-screen md:flex">
         <Header />
-        <router-view class="flex-1 p-2 md:p-8 bg-gray-300" />
+        <div
+            class="
+                flex-1
+                p-2
+                pt-16
+                space-y-2
+                min-h-screen
+                md:space-y-8 md:p-8 md:ml-64
+                bg-gray-300
+            "
+        >
+            <router-view />
+        </div>
     </div>
 </template>
 

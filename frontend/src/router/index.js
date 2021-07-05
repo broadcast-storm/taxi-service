@@ -30,6 +30,12 @@ const routes = [
                 path: routesList.mainPage.children.newsPage.path,
                 component: () => import('@/views/MainViews/News.vue'),
             },
+            {
+                path: routesList.mainPage.children.newsPage.children.openedNews
+                    .path,
+                component: () => import('@/views/MainViews/News.vue'),
+                props: true,
+            },
         ],
     },
     {

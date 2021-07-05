@@ -1,6 +1,19 @@
 <template>
     <!-- mobile menu bar -->
-    <div class="bg-gray-900 text-gray-100 flex justify-between md:hidden z-50">
+    <div
+        class="
+            bg-gray-900
+            text-gray-100
+            flex
+            justify-between
+            md:hidden
+            z-50
+            fixed
+            top-0
+            left-0
+            w-full
+        "
+    >
         <!-- logo -->
         <div class="flex items-center pl-2">
             <Logo class="w-8" />
@@ -42,13 +55,14 @@
             bg-yellow-500
             text-gray-900
             w-64
+            h-screen
             py-7
             px-2
-            absolute
+            fixed
             inset-y-0
             left-0
             transform
-            md:relative md:translate-x-0
+            md:fixed md:translate-x-0
             transition
             duration-200
             ease-in-out
@@ -332,7 +346,7 @@
                         </g>
                     </svg>
 
-                    <span class="font-medium">Новости</span>
+                    <span class="font-medium">Новости и Акции</span>
                 </router-link>
                 <router-link
                     :to="routesList.mainPage.children.pricesPage"
