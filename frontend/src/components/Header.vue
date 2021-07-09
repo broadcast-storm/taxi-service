@@ -80,7 +80,13 @@
                 <span class="text-2xl font-bold">Сервис Такси</span>
             </router-link>
             <div class="bg-gray-900 rounded py-4 px-4">
-                <template v-if="true">
+                <div
+                    v-if="profileStatus === 'loading' && isAuthenticated"
+                    class="w-full h-full flex justify-center items-center"
+                >
+                    <Spinner />
+                </div>
+                <template v-if="profileStatus === 'success' && isAuthenticated">
                     <div class="text-yellow-500 flex items-center mb-4">
                         <svg
                             class="h-8 fill-current mr-2"
@@ -106,7 +112,10 @@
                                 />
                             </g>
                         </svg>
-                        <span class="text-lg">Вася Пукин</span>
+                        <span class="text-lg"
+                            >{{ profileInfo.name }}
+                            {{ profileInfo.surname }}</span
+                        >
                         <router-link
                             :to="routesList.mainPage.children.profilePage"
                             class="ml-auto text-gray-300"
@@ -136,7 +145,10 @@
                         </router-link>
                     </div>
                     <router-link
-                        :to="routesList.mainPage.children.profilePage"
+                        :to="
+                            routesList.mainPage.children.profilePage.children
+                                .orderCar.path
+                        "
                         class="
                             group
                             relative
@@ -159,7 +171,7 @@
                         >Заказать машину
                     </router-link>
                 </template>
-                <template v-else>
+                <template v-if="!isAuthenticated">
                     <router-link
                         :to="routesList.authPage.children.signUpPage.path"
                         class="
@@ -440,6 +452,8 @@
                 hover:bg-gray-900 hover:text-white
                 cursor-pointer
             "
+            v-if="isAuthenticated"
+            @click="logout()"
         >
             <svg
                 viewBox="0 0 512.00533 512"
@@ -461,19 +475,32 @@
 <script>
 import routesList from '@/router/routesList'
 import Logo from '@/components/Logo'
+import Spinner from '@/components/Spinner'
+import { mapActions, mapGetters } from 'vuex'
+import { AUTH_LOGOUT } from '@/store/action-types/tokens'
 
 export default {
     name: 'Header',
-    components: { Logo },
+    components: { Logo, Spinner },
     data() {
         return {
             routesList,
             isOpen: true,
         }
     },
+    computed: {
+        ...mapGetters('profile', ['profileStatus', 'profileInfo']),
+        ...mapGetters('tokens', ['tokenStatus', 'isAuthenticated']),
+    },
     methods: {
+        ...mapActions('tokens', [AUTH_LOGOUT]),
+
         toggleNavBar() {
             this.isOpen = !this.isOpen
+        },
+        async logout() {
+            await this.AUTH_LOGOUT()
+            this.$router.go(routesList.mainPage.path)
         },
     },
 }

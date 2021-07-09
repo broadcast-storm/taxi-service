@@ -17,6 +17,20 @@ const routes = [
                 meta: {
                     requiresAuthentication: true,
                 },
+                children: [
+                    {
+                        path: routesList.mainPage.children.profilePage.children
+                            .editUser.path,
+                        component: () =>
+                            import('@/views/MainViews/ProfileViews/UserInfo'),
+                    },
+                    {
+                        path: routesList.mainPage.children.profilePage.children
+                            .orderCar.path,
+                        component: () =>
+                            import('@/views/MainViews/ProfileViews/OrderCar'),
+                    },
+                ],
             },
             {
                 path: routesList.mainPage.children.pricesPage.path,

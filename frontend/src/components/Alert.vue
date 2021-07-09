@@ -15,7 +15,7 @@
         "
         role="alert"
     >
-        <span>Something seriously bad happened.</span>
+        <span>{{ text }}</span>
     </div>
 </template>
 

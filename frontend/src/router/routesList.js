@@ -25,7 +25,7 @@ const routesList = {
                         path: '/profile',
                     },
                     orderCar: {
-                        path: '/order-car',
+                        path: '/profile/order-car',
                     },
                 },
             },

@@ -21,16 +21,18 @@ class NewsResource(resources.ModelResource):
 
 class NewsAdmin(ImportExportActionModelAdmin):
     resource_class = NewsResource
-    list_filter = ('status',)
-    list_display = ('title', 'description', 'status',
+    list_filter = ('status', 'type')
+    list_display = ('title', 'description', 'status', 'type',
                     'created_at', 'published_at')
     actions = ImportExportActionModelAdmin.actions + ["make_news_published", ]
     search_fields = ('title', 'description')
     fieldsets = ((None, {
         'fields': (
+            'type',
             'title',
             'image',
             'description',
+            'content',
         )
     }),)
     filter_horizontal = ()
@@ -148,11 +150,11 @@ class UserProfileAdmin(UserAdmin):
     search_fields = ('name', 'surname')
     readonly_fields = ('date_joined', 'last_login')
     fieldsets = (
-        (None, {'fields': ('name', 'surname', "email",
+        (None, {'fields': ('name', 'surname', "email", 'phone',
                            "last_login", "date_joined", 'password')}),
     )
     add_fieldsets = (
-        (None, {'fields': ("email", 'name', 'surname', 'password1', 'password2')}),
+        (None, {'fields': ("email", 'phone', 'name', 'surname', 'password1', 'password2')}),
     )
 
     filter_horizontal = ()
@@ -161,7 +163,7 @@ class UserProfileAdmin(UserAdmin):
 class UserOperatorInline(admin.TabularInline):
     model = User
     fieldsets = (
-        (None, {'fields': ('name', 'surname', "email", 'password', 'userType', 'is_staff', 'is_admin',
+        (None, {'fields': ('name', 'surname', "email", 'phone', 'password', 'userType', 'is_staff', 'is_admin',
                            "last_login", "date_joined")}),
     )
     readonly_fields = ('date_joined', 'last_login')
@@ -173,7 +175,7 @@ class UserOperatorInline(admin.TabularInline):
 class UserDriverInline(admin.TabularInline):
     model = User
     fieldsets = (
-        (None, {'fields': ('name', 'surname', "email", 'password', 'userType',
+        (None, {'fields': ('name', 'surname', "email", 'phone', 'password', 'userType',
                            "last_login", "date_joined")}),
     )
     readonly_fields = ('date_joined', 'last_login')
@@ -202,7 +204,7 @@ class DriverAdmin(ReverseModelAdmin):
     car_link.short_description = 'Авто'
     car_link.admin_order_field = 'авто'
     list_filter = ('driverStatus',)
-    list_display = ('user', 'car_link', 'phone',
+    list_display = ('user', 'car_link',
                     'driverLicense', 'driverStatus')
 
 
@@ -215,7 +217,7 @@ class OperatorAdmin(ReverseModelAdmin):
         },
     ]
     list_filter = ('operatorStatus',)
-    list_display = ('user', 'phone', 'operatorStatus')
+    list_display = ('user', 'operatorStatus')
 
 
 class OrderResource(resources.ModelResource):

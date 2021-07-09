@@ -158,6 +158,35 @@
         </template>
         <template v-else>
             <div class="mx-auto max-w-2xl my-20">
+                <router-link
+                    class="
+                        flex
+                        items-center
+                        mb-4
+                        text-gray-900
+                        hover:text-yellow-500
+                    "
+                    :to="routesList.mainPage.children.newsPage.path"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        x="0px"
+                        y="0px"
+                        viewBox="0 0 512 512"
+                        class="h-4 fill-current mr-2"
+                    >
+                        <g>
+                            <g>
+                                <path
+                                    d="M492,236H68.442l70.164-69.824c7.829-7.792,7.859-20.455,0.067-28.284c-7.792-7.83-20.456-7.859-28.285-0.068
+			l-104.504,104c-0.007,0.006-0.012,0.013-0.018,0.019c-7.809,7.792-7.834,20.496-0.002,28.314c0.007,0.006,0.012,0.013,0.018,0.019
+			l104.504,104c7.828,7.79,20.492,7.763,28.285-0.068c7.792-7.829,7.762-20.492-0.067-28.284L68.442,276H492
+			c11.046,0,20-8.954,20-20C512,244.954,503.046,236,492,236z"
+                                />
+                            </g>
+                        </g></svg
+                    ><span>Назад к новостям</span>
+                </router-link>
                 <div class="bg-white shadow-2xl rounded-lg mb-6 tracking-wide">
                     <div
                         class="
@@ -189,7 +218,7 @@
                             "
                         />
                     </div>
-                    <div class="px-4 py-2 mt-2">
+                    <div class="px-4 py-4 mt-2">
                         <h2
                             class="
                                 font-bold
@@ -199,56 +228,14 @@
                         >
                             My Amaizing Journey to the Mountains.
                         </h2>
-                        <p class="text-sm text-gray-700 px-2 mr-1">
+                        <span class="py-8 text-gray-500"> 22/08/2000 </span>
+                        <p class="text-sm text-gray-700 mr-1">
                             Lorem ipsum dolor sit amet consectetur adipisicing
                             elit. Tempora reiciendis ad architecto at aut
                             placeat quia, minus dolor praesentium officia maxime
                             deserunt porro amet ab debitis deleniti modi soluta
                             similique...
                         </p>
-                        <div
-                            class="flex items-center justify-between mt-2 mx-6"
-                        >
-                            <a href="#" class="text-blue-500 text-xs -ml-3"
-                                >Show More</a
-                            >
-                            <a href="#" class="flex text-gray-700">
-                                <svg
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    class="w-6 h-6 text-blue-500"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-                                    />
-                                </svg>
-                                5
-                            </a>
-                        </div>
-                        <div class="author flex items-center -ml-3 my-3">
-                            <div class="user-logo">
-                                <img
-                                    class="
-                                        w-12
-                                        h-12
-                                        object-cover
-                                        rounded-full
-                                        mx-4
-                                        shadow
-                                    "
-                                    src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=731&q=80"
-                                    alt="avatar"
-                                />
-                            </div>
-                            <h2 class="text-sm tracking-tighter text-gray-900">
-                                <a href="#">By Mohammed Ibrahim</a>
-                                <span class="text-gray-600">21 SEP 2015.</span>
-                            </h2>
-                        </div>
                     </div>
                 </div>
             </div>

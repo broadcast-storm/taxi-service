@@ -29,7 +29,10 @@
                     Войти в аккаунт
                 </h2>
             </div>
-            <Alert v-if="error.length > 0" />
+            <Alert
+                v-if="error.length > 0 || tokenStatus === 'error'"
+                text="Неверная почта или пароль"
+            />
             <form class="mt-3 sm:mt-8" @submit.prevent="submit">
                 <div class="rounded-md shadow-sm">
                     <Input
@@ -50,20 +53,6 @@
                         placeholder="Пароль"
                         class="mb-2 sm:mb-3"
                     />
-                </div>
-
-                <div class="flex items-center justify-between">
-                    <div class="text-sm">
-                        <router-link
-                            :to="
-                                routesList.authPage.children.forgotPasswordPage
-                                    .path
-                            "
-                            class="font-medium text-yellow-400 hover:text-white"
-                        >
-                            Забыли пароль?
-                        </router-link>
-                    </div>
                 </div>
 
                 <div>
@@ -92,18 +81,8 @@
                             focus:ring-white
                         "
                     >
-                        <span
-                            class="
-                                absolute
-                                left-0
-                                inset-y-0
-                                flex
-                                items-center
-                                pl-3
-                            "
-                        >
-                        </span>
-                        Войти
+                        <Spinner v-if="tokenStatus === 'loading'" />
+                        <span v-else>Войти</span>
                     </button>
                 </div>
                 <div class="flex items-center justify-center">
@@ -129,10 +108,11 @@ import Input from '@/components/Input'
 import Alert from '@/components/Alert'
 import { AUTH_REQUEST } from '@/store/action-types/tokens'
 import { mapActions, mapGetters } from 'vuex'
+import Spinner from '@/components/Spinner'
 
 export default {
     name: 'SignIn',
-    components: { Logo, Input, Alert },
+    components: { Logo, Input, Alert, Spinner },
     data() {
         return {
             routesList,
@@ -144,7 +124,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters('tokens', ['isAuthenticated']),
+        ...mapGetters('tokens', ['tokenStatus']),
     },
     watch: {
         formData: {
@@ -152,6 +132,9 @@ export default {
                 if (this.error.length > 0) this.error = []
             },
             deep: true,
+        },
+        tokenStatus: function (val) {
+            if (val === 'success') this.$router.push(routesList.mainPage.path)
         },
     },
     methods: {

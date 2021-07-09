@@ -12,13 +12,14 @@ import {
     CREATE_USER_SUCCESS,
     CREATE_USER_ERROR,
 } from '@/store/action-types/tokens'
+import { PROFILE_REQUEST_SUCCESS } from '@/store/action-types/profile'
 
 const actions = {
     [CREATE_USER_REQUEST]: async ({ commit }, userCredentials) => {
         try {
             commit(CREATE_USER_REQUEST)
             const response = await axios.post(
-                '/api/login',
+                '/api/create-user',
                 {
                     email: userCredentials.username,
                     name: userCredentials.password,
@@ -48,8 +49,10 @@ const actions = {
             const response = await axios.post(
                 '/api/login',
                 {
-                    username: userCredentials.email,
-                    password: userCredentials.password,
+                    user: {
+                        email: userCredentials.email,
+                        password: userCredentials.password,
+                    },
                 },
                 {
                     headers: {
@@ -57,12 +60,21 @@ const actions = {
                     },
                 }
             )
+
+            console.log(response.data)
             commit(AUTH_SUCCESS, {
-                accessToken: response.data.access,
-                refreshToken: response.data.refresh,
+                accessToken: response.data.tokens.access,
+                refreshToken: response.data.tokens.refresh,
             })
+            commit(
+                `profile/${PROFILE_REQUEST_SUCCESS}`,
+                {
+                    newProfileInfo: response.data.user,
+                },
+                { root: true }
+            )
             commit(FIRST_AUTH_REQUEST_SUCCESS)
-            localStorage.setItem('refresh_token', response.data.refresh)
+            localStorage.setItem('refresh_token', response.data.tokens.refresh)
         } catch (error) {
             commit(AUTH_ERROR, error)
             throw error
