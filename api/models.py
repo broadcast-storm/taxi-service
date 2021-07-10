@@ -143,14 +143,14 @@ class Car(models.Model):
     LADA = 'LADA'
     CHEVROLET = 'CHEVROLET'
     HYUNDAI = 'HYUNDAI'
-    MERSEDES = 'MERSEDES'
+    MERCEDES = 'MERCEDES'
     PEUGEOT = 'PEUGEOT'
     BRAND_CHOICES = (
         (BMW, 'BMW'),
         (LADA, 'Lada'),
         (CHEVROLET, 'Chevrolet'),
         (HYUNDAI, 'Hyundai'),
-        (MERSEDES, 'Mersedes'),
+        (MERCEDES, 'Mercedes'),
         (PEUGEOT, 'Peugeot'),
     )
 

@@ -294,14 +294,12 @@
 <script>
 import TrafficJam from '@/components/TrafficJam'
 import News from '@/components/News'
+
 export default {
     name: 'MainPage',
     components: { TrafficJam, News },
+
     computed: {},
-
-    async mounted() {},
-
-    methods: {},
 }
 </script>
 

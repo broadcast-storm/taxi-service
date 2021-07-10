@@ -18,7 +18,7 @@ from .serializers import NewsSerializer, UserSerializer, DriverSerializer, Opera
     DriverRaitingCreateSerializer, DriverRaitingCommentCreateSerializer, OrderListSerializer, \
     EmptySerializer, DriverShortSerializer, DriverChangeStatusSerializer, OperatorChangeStatusSerializer, \
     OperatorShortSerializer, OrderChangeStatusSerializer, PriceListSerializer, NewsShortSerializer, \
-    RegistrationSerializer, LoginSerializer, CreateOrderSerializer
+    RegistrationSerializer, LoginSerializer, CreateOrderSerializer, CurrentOrderSerializer
 
 from .models import News, Driver, Operator, Order, \
     DriverRaitingComment, DriverRaiting, PriceList
@@ -57,13 +57,14 @@ class LoginAPIView(APIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         tokens = get_tokens_for_user(User.objects.get(email=user["email"]))
-        return Response({'user': serializer.validated_data, 'tokens': tokens}, status=status.HTTP_200_OK)
+        serializer2 = UserSerializer(User.objects.get(email=user["email"]))
+        return Response({'user': serializer2.data, 'tokens': tokens}, status=status.HTTP_200_OK)
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
 
     def get_permissions(self):
-        if self.action == 'retrieve':
+        if self.action == 'retrieve' or self.action == 'partial_update':
             permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAdminUser]
@@ -74,6 +75,18 @@ class UsersViewSet(viewsets.ModelViewSet):
             return UserSerializer
         else:
             return EmptySerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        user_object = self.get_object()
+        data = request.data
+
+        user_object.name = data.get('name', user_object.name)
+        user_object.surname = data.get('surname', user_object.surname)
+        user_object.phone = data.get('phone', user_object.phone)
+
+        user_object.save()
+        serializer = UserSerializer(user_object)
+        return Response(serializer.data)
 
     def create(self, request, pk=None):
         content = {
@@ -92,12 +105,11 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 class LastNewsAPIView(APIView):
     permission_classes = (AllowAny,)
-    serializer_class = NewsShortSerializer
 
     def get(self, request):
         news = News.objects.filter(status__in=['published', ], ).latest("id")
-        serializer = self.serializer_class(news)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = NewsShortSerializer(news, context={"request":request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class NewsViewSet(viewsets.ModelViewSet):
@@ -209,8 +221,28 @@ class OperatorViewSet(viewsets.ModelViewSet):
 # ЗАКАЗЫ
 # ============================================
 
+class getCurrentOrderAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        order = Order.objects.filter(user=request.user.id).filter(orderStatus__in=['client_waiting', 'in_progress', 'driver_waiting',], ).first()
+        serializer = CurrentOrderSerializer(order, context={"request":request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class closeCurrentOrderAPIView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        id = request.data.get('id', None)
+        order = Order.objects.get(id=id)
+        print(order)
+        order.orderStatus = 'client_canceled'
+        order.save()
+        return Response( status=status.HTTP_200_OK)
+
+
 class CreateOrderAPIView(APIView):
-    permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = CreateOrderSerializer
 
     def post(self, request):

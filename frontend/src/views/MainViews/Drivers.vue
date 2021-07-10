@@ -16,14 +16,32 @@
             <span class="text-lg font-bold text-gray-900"
                 >Здесь представлен список водителей, которые работают сегодня
                 <br />
-                (Сейчас {{ drivers.length }})
+                <span v-if="driversStatus === 'success'"
+                    >(Сейчас {{ drivers.length }})</span
+                >
             </span>
         </div>
-        <div class="flex flex-wrap w-full lg:w-9/12 mx-auto">
+        <div
+            v-if="driversStatus === 'loading'"
+            class="h-40 flex justify-center items-center"
+        >
+            <Spinner />
+        </div>
+        <div
+            v-if="driversStatus === 'success'"
+            class="flex flex-wrap w-full lg:w-9/12 mx-auto"
+        >
             <div
-                class="w-1/2 xl:w-1/3 border-4 border-transparent flex-col p-4"
                 v-for="(item, index) in drivers"
                 :key="index"
+                class="
+                    w-full
+                    md:w-1/2
+                    xl:w-1/3
+                    border-4 border-transparent
+                    flex-col
+                    p-4
+                "
             >
                 <div
                     class="
@@ -78,12 +96,27 @@
                     "
                 >
                     <h3 class="text-white text-2xl text-center font-bold">
-                        Вася Пупкин
+                        {{
+                            item.user_details.name +
+                            ' ' +
+                            item.user_details.surname
+                        }}
                     </h3>
-                    <h4 class="text-gray-200 text-sm">Машина: Белая Audi</h4>
+                    <h4 class="text-gray-200 text-sm">
+                        Автомобиль:
+                        {{
+                            car_colors[item.car_details.color] +
+                            ' ' +
+                            car_brands[item.car_details.brand]
+                        }}
+                    </h4>
                     <h4 class="text-gray-200 text-sm">
                         Статус:
-                        <span class="text-yellow-500">Отвозит клиента</span>
+                        <span class="text-yellow-500">{{
+                            item.driverStatus === 'waiting_order'
+                                ? 'Ожидает клиента'
+                                : 'Отвозит клиента'
+                        }}</span>
                     </h4>
                 </div>
             </div>
@@ -93,21 +126,56 @@
 
 <script>
 import routesList from '@/router/routesList'
+import Spinner from '@/components/Spinner'
+import axios from 'axios'
 
 export default {
     name: 'Drivers',
-    components: {},
+    components: { Spinner },
     data() {
         return {
             routesList,
-            drivers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            driversStatus: 'loading',
+            drivers: null,
+            car_colors: {
+                yellow: 'желтый',
+                green: 'зеленый',
+                red: 'красный',
+                black: 'черный',
+                white: 'белый',
+                blue: 'синий',
+            },
+            car_brands: {
+                BMW: 'BMW',
+                LADA: 'Lada',
+                CHEVROLET: 'Chevrolet',
+                HYUNDAI: 'Hyundai',
+                MERCEDES: 'Mercedes',
+                PEUGEOT: 'Peugeot',
+            },
         }
     },
     computed: {},
 
-    async mounted() {},
+    async mounted() {
+        await this.getDrivers()
+    },
 
-    methods: {},
+    methods: {
+        async getDrivers() {
+            try {
+                const response = await axios.get(`/api/drivers`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                this.driversStatus = 'success'
+                this.drivers = response.data
+            } catch (e) {
+                this.driversStatus = 'error'
+            }
+        },
+    },
 }
 </script>
 

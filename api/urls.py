@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from .views import NewsViewSet, DriverViewSet, \
     OperatorViewSet, OrderViewSet, CommentViewSet, RaitingViewSet, \
     PriceListViewSet, LogoutAllView, LogoutView, RegistrationAPIView, LoginAPIView, LastNewsAPIView, CreateOrderAPIView, \
-    UsersViewSet
+    UsersViewSet, getCurrentOrderAPIView, closeCurrentOrderAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -27,6 +27,8 @@ urlpatterns = [
     path("", include(router.urls)),
     path('create-user', RegistrationAPIView.as_view(), name='create-user'),
     path('create-order', CreateOrderAPIView.as_view(), name='create-order'),
+    path('current-order', getCurrentOrderAPIView.as_view(), name='current-order'),
+    path('close-order', closeCurrentOrderAPIView.as_view(), name='close-order'),
     path('login', LoginAPIView.as_view(), name='login'),
     path('logout', LogoutView.as_view(), name='auth_logout'),
     path('logout-all', LogoutAllView.as_view(), name='auth_logout_all'),

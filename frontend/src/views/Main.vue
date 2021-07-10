@@ -21,7 +21,10 @@
 import { mapGetters, mapActions } from 'vuex'
 import { PROFILE_REQUEST_FETCHING } from '@/store/action-types/profile'
 import Header from '@/components/Header'
-import { AUTH_REFRESH_REQUEST } from '@/store/action-types/tokens'
+import {
+    AUTH_REFRESH_REQUEST,
+    QUIET_REFRESH_REQUEST,
+} from '@/store/action-types/tokens'
 
 export default {
     name: 'Main',
@@ -31,12 +34,23 @@ export default {
     },
     computed: {
         ...mapGetters('profile', ['profileStatus']),
-        ...mapGetters('tokens', ['tokenStatus', 'isAuthenticated']),
+        ...mapGetters('tokens', [
+            'tokenStatus',
+            'isAuthenticated',
+            'firstRequestSuccess',
+        ]),
     },
 
     watch: {
         tokenStatus: async function (val) {
-            if (val === 'success') await this.PROFILE_REQUEST_FETCHING()
+            if (val === 'success') {
+                await this.PROFILE_REQUEST_FETCHING()
+            }
+        },
+        firstRequestSuccess: async function (newVal, oldVal) {
+            if (oldVal === false && newVal === true) {
+                setInterval(this.refreshAccessToken, 50000)
+            }
         },
     },
     async mounted() {
@@ -44,7 +58,11 @@ export default {
     },
     methods: {
         ...mapActions('profile', [PROFILE_REQUEST_FETCHING]),
-        ...mapActions('tokens', [AUTH_REFRESH_REQUEST]),
+        ...mapActions('tokens', [AUTH_REFRESH_REQUEST, QUIET_REFRESH_REQUEST]),
+        async refreshAccessToken() {
+            await this.QUIET_REFRESH_REQUEST()
+            console.log('refresh done')
+        },
     },
 }
 </script>

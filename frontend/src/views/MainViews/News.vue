@@ -28,6 +28,7 @@
             >
                 <div class="flex-1 w-full md:w-auto mt-4 md:mt-0">
                     <input
+                        v-model="titleFilter"
                         type="text"
                         class="
                             w-full
@@ -40,17 +41,23 @@
                         placeholder="Поиск по названию"
                     />
                 </div>
+
                 <ul class="flex cursor-pointer space-x-1">
                     <li
                         class="
                             py-2
                             px-6
-                            bg-yellow-500
-                            text-gray-900
                             rounded-b-md
                             md:rounded-b-none
                             rounded-t-md
                         "
+                        :class="{
+                            'bg-yellow-500': typeFilter === '',
+                            'text-gray-900': typeFilter === '',
+                            'bg-gray-900': typeFilter !== '',
+                            'text-yellow-500': typeFilter !== '',
+                        }"
+                        @click="changeFilter('')"
                     >
                         Все
                     </li>
@@ -58,12 +65,17 @@
                         class="
                             py-2
                             px-6
-                            bg-gray-900
-                            text-yellow-500
                             rounded-b-md
                             md:rounded-b-none
                             rounded-t-md
                         "
+                        :class="{
+                            'bg-yellow-500': typeFilter === 'news',
+                            'text-gray-900': typeFilter === 'news',
+                            'bg-gray-900': typeFilter !== 'news',
+                            'text-yellow-500': typeFilter !== 'news',
+                        }"
+                        @click="changeFilter('news')"
                     >
                         Новости
                     </li>
@@ -71,22 +83,39 @@
                         class="
                             py-2
                             px-6
-                            bg-gray-900
-                            text-yellow-500
                             rounded-b-md
                             md:rounded-b-none
                             rounded-t-md
                         "
+                        :class="{
+                            'bg-yellow-500': typeFilter === 'offer',
+                            'text-gray-900': typeFilter === 'offer',
+                            'bg-gray-900': typeFilter !== 'offer',
+                            'text-yellow-500': typeFilter !== 'offer',
+                        }"
+                        @click="changeFilter('offer')"
                     >
                         Акции
                     </li>
                 </ul>
             </div>
-            <div class="flex flex-wrap">
+            <div
+                v-if="allNewsStatus === 'loading'"
+                class="h-40 flex justify-center items-center"
+            >
+                <Spinner />
+            </div>
+            <div v-if="allNewsStatus === 'success'" class="flex flex-wrap">
                 <div
+                    v-for="item in allNews.filter(
+                        (news) =>
+                            (typeFilter === '' || news.type === typeFilter) &&
+                            news.title
+                                .toLowerCase()
+                                .includes(titleFilter.toLowerCase())
+                    )"
+                    :key="item.id"
                     class="news-item flex-col"
-                    v-for="item in news"
-                    :key="item"
                 >
                     <div
                         class="
@@ -103,7 +132,7 @@
                         "
                     >
                         <img
-                            :src="require('@/assets/img/main/header.jpg')"
+                            :src="item.image"
                             alt=""
                             class="
                                 border-none
@@ -130,19 +159,20 @@
                         "
                     >
                         <h3 class="text-white text-2xl font-bold">
-                            Очень интересная акция
+                            {{ item.title }}
                         </h3>
                         <h4 class="text-gray-200 text-sm text-yellow-500">
-                            Акция
+                            {{ item.type === 'offer' ? 'Акция' : 'Новость' }}
+                        </h4>
+                        <h4 class="mb-2 text-gray-100 text-xs">
+                            {{ getClearDate(item.published_at) }}
                         </h4>
                         <p class="text-white text-sm">
-                            Lorem ipsum dolor sit amet, consectetuer adipiscing
-                            elit. Aenean commodo ligula eget dolor. Aenean
-                            massa.
+                            {{ item.description }}
                         </p>
                         <div class="mt-4">
                             <router-link
-                                :to="`${routesList.mainPage.children.newsPage.path}/1`"
+                                :to="`${routesList.mainPage.children.newsPage.path}/${item.id}`"
                                 class="
                                     no-underline
                                     text-yellow-500
@@ -187,7 +217,16 @@
                         </g></svg
                     ><span>Назад к новостям</span>
                 </router-link>
-                <div class="bg-white shadow-2xl rounded-lg mb-6 tracking-wide">
+                <div
+                    v-if="openedNewsStatus === 'loading'"
+                    class="h-40 flex justify-center items-center"
+                >
+                    <Spinner />
+                </div>
+                <div
+                    v-if="openedNewsStatus === 'success'"
+                    class="bg-white shadow-2xl rounded-lg mb-6 tracking-wide"
+                >
                     <div
                         class="
                             w-full
@@ -204,7 +243,7 @@
                         "
                     >
                         <img
-                            :src="require('@/assets/img/main/header.jpg')"
+                            :src="openedNews.image"
                             alt=""
                             class="
                                 border-none
@@ -226,15 +265,20 @@
                                 tracking-normal
                             "
                         >
-                            My Amaizing Journey to the Mountains.
+                            {{ openedNews.title }}
                         </h2>
-                        <span class="py-8 text-gray-500"> 22/08/2000 </span>
+                        <h4 class="text-gray-200 text-sm text-yellow-500">
+                            {{
+                                openedNews.type === 'offer'
+                                    ? 'Акция'
+                                    : 'Новость'
+                            }}
+                        </h4>
+                        <h4 class="mb-2 text-gray-400 text-xs">
+                            {{ getClearDate(openedNews.published_at) }}
+                        </h4>
                         <p class="text-sm text-gray-700 mr-1">
-                            Lorem ipsum dolor sit amet consectetur adipisicing
-                            elit. Tempora reiciendis ad architecto at aut
-                            placeat quia, minus dolor praesentium officia maxime
-                            deserunt porro amet ab debitis deleniti modi soluta
-                            similique...
+                            {{ openedNews.content }}
                         </p>
                     </div>
                 </div>
@@ -245,9 +289,11 @@
 
 <script>
 import routesList from '@/router/routesList'
+import Spinner from '@/components/Spinner'
+import axios from 'axios'
 export default {
     name: 'News',
-    components: {},
+    components: { Spinner },
     props: {
         id: {
             type: String,
@@ -257,16 +303,72 @@ export default {
     data() {
         return {
             routesList,
-            news: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            allNewsStatus: 'loading',
+            openedNewsStatus: 'loading',
+            allNews: null,
+            openedNews: null,
+            typeFilter: '',
+            titleFilter: '',
         }
     },
     computed: {},
-
-    async mounted() {
-        console.log(this.id)
+    watch: {
+        id: async function (val) {
+            if (val === null) await this.getAllNews()
+            else await this.getOpenedNews()
+        },
     },
+    async mounted() {
+        if (this.id === null) await this.getAllNews()
+        else await this.getOpenedNews()
+    },
+    methods: {
+        async getAllNews() {
+            try {
+                const response = await axios.get(`/api/news`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                this.allNewsStatus = 'success'
+                this.allNews = response.data
+            } catch (e) {
+                this.allNewsStatus = 'error'
+            }
+        },
+        async getOpenedNews() {
+            try {
+                const response = await axios.get(`/api/news/${this.id}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                this.openedNewsStatus = 'success'
+                this.openedNews = response.data
+            } catch (e) {
+                this.openedNewsStatus = 'error'
+            }
+        },
+        changeFilter(str) {
+            this.typeFilter = str
+        },
+        getClearDate(str) {
+            let date = new Date(str)
+            const withZero = (val) => (val >= 10 ? val : '0' + val)
 
-    methods: {},
+            return (
+                withZero(date.getDate()) +
+                '/' +
+                withZero(date.getMonth() + 1) +
+                '/' +
+                date.getFullYear() +
+                ' ' +
+                withZero(date.getHours()) +
+                ':' +
+                withZero(date.getMinutes())
+            )
+        },
+    },
 }
 </script>
 

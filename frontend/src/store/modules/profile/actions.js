@@ -22,7 +22,6 @@ const actions = {
                     Authorization: `Bearer ${token}`,
                 },
             })
-            console.log(response.data)
             commit(PROFILE_REQUEST_SUCCESS, {
                 newProfileInfo: response.data,
             })
@@ -31,18 +30,26 @@ const actions = {
             throw error
         }
     },
-    [PROFILE_UPDATE]: async ({ commit, rootState }) => {
+    [PROFILE_UPDATE]: async ({ commit, rootState }, updateInfo) => {
         try {
             const token = rootState.tokens.accessToken
             if (token === null) return commit(PROFILE_REQUEST_ERROR, {})
             const userId = jwt.decode(token).user_id
             commit(PROFILE_UPDATE)
-            const response = await axios.get(`/api/users/${userId}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+            const response = await axios.patch(
+                `/api/users/${userId}/`,
+                {
+                    phone: updateInfo.phone,
+                    name: updateInfo.name,
+                    surname: updateInfo.surname,
                 },
-            })
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
             console.log(response.data)
             commit(PROFILE_UPDATE_SUCCESS, {
                 newProfileInfo: response.data,

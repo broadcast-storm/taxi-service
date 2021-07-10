@@ -102,9 +102,11 @@ class NewsSerializer(serializers.ModelSerializer):
 
 
 class NewsShortSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
     class Meta:
         model = News
-        fields = ["id", "title", "description", "type", "published_at"]
+        fields = ["id", "title", "image", "description", "type", "published_at"]
 
 
 # ============================================
@@ -298,6 +300,18 @@ class OrderChangeStatusSerializer(serializers.ModelSerializer):
         model = Order
         fields = ["orderStatus", ]
 
+class CurrentOrderSerializer(serializers.ModelSerializer):
+    full_client_address = serializers.CharField(read_only=True)
+    full_destination_address = serializers.CharField(read_only=True)
+
+    driver_details = DriverShortSerializer(source="driver", read_only=True)
+    discount_details = DiscountSerializer(source="discount", read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ["id", "driver_details", "discount_details", "full_client_address",
+                  "full_destination_address",
+                  "price", "orderStatus", "created_at", "scheduledTime"]
 
 class OrderListSerializer(serializers.ModelSerializer):
     full_client_address = serializers.CharField(read_only=True)

@@ -29,7 +29,14 @@
                     Регистрация клиента
                 </h2>
             </div>
-            <Alert v-if="error.length > 0" />
+            <Alert
+                v-if="error.length > 0 || creatingUserStatus === 'error'"
+                :text="
+                    creatingUserStatus === 'error'
+                        ? 'Пользователь с такими данными уже существует\n'
+                        : '' + error.join('\n')
+                "
+            />
             <form class="mt-3 sm:mt-8" @submit.prevent="submit">
                 <div class="rounded-md shadow-sm">
                     <Input
@@ -119,18 +126,10 @@
                             focus:ring-white
                         "
                     >
-                        <span
-                            class="
-                                absolute
-                                left-0
-                                inset-y-0
-                                flex
-                                items-center
-                                pl-3
-                            "
-                        >
+                        <span class="flex items-center">
+                            <Spinner v-if="creatingUserStatus === 'loading'" />
+                            <span v-else>Зарегистрироваться</span>
                         </span>
-                        Зарегистрироваться
                     </button>
                 </div>
                 <div class="flex items-center justify-center">
@@ -156,9 +155,10 @@ import { CREATE_USER_REQUEST } from '@/store/action-types/tokens'
 import Logo from '@/components/Logo'
 import Input from '@/components/Input'
 import Alert from '@/components/Alert'
+import Spinner from '@/components/Spinner'
 export default {
     name: 'SignUp',
-    components: { Logo, Input, Alert },
+    components: { Logo, Input, Alert, Spinner },
     data() {
         return {
             routesList,
@@ -181,6 +181,9 @@ export default {
                 if (this.error.length > 0) this.error = []
             },
             deep: true,
+        },
+        creatingUserStatus: function (val) {
+            if (val === 'success') this.$router.push(routesList.mainPage.path)
         },
     },
     methods: {

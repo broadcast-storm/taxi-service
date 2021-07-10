@@ -5,11 +5,10 @@
             :id="name"
             :name="name"
             :type="type"
+            :pattern="pattern === '' ? null : pattern"
             :autocomplete="autocomplete"
             :required="required"
             class="
-                appearance-none
-                rounded-none
                 relative
                 block
                 w-full
@@ -21,11 +20,15 @@
                 placeholder-gray-500
                 text-base text-gray-300
                 rounded-md
-                focus:outline-none
-                focus:ring-yellow-500
-                focus:border-yellow-500
-                focus:z-10
+                h-14
+                focus:outline-none focus:ring-yellow-500 focus:border-yellow-500
             "
+            :class="{
+                'text-white': darkMode,
+                'bg-gray-900': darkMode,
+                'border-gray-200': darkMode,
+                'bg-opacity-100': darkMode,
+            }"
             :placeholder="placeholder"
             :value="modelValue"
             @input="$emit('update:modelValue', $event.target.value)"
@@ -47,6 +50,10 @@ export default {
             type: String,
             required: true,
         },
+        darkMode: {
+            type: Boolean,
+            default: false,
+        },
         placeholder: {
             type: String,
             default: 'Placeholder',
@@ -54,6 +61,10 @@ export default {
         autocomplete: {
             type: String,
             default: 'off',
+        },
+        pattern: {
+            type: String,
+            default: '',
         },
         type: {
             validator(value) {
@@ -65,6 +76,8 @@ export default {
                     'text',
                     'email',
                     'number',
+                    'tel',
+                    'datetime-local',
                 ].includes(value)
             },
             default: 'text',
