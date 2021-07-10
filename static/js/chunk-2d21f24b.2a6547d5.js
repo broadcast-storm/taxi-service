@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d21f24b"],{d922:function(n,e,t){"use strict";function r(n,e,t,r,o,u){return"Страница профиля"}t.r(e);var o=t("1da1"),u=(t("96cf"),{name:"Profile",components:{},data:function(){},computed:{},mounted:function(){return Object(o["a"])(regeneratorRuntime.mark((function n(){return regeneratorRuntime.wrap((function(n){while(1)switch(n.prev=n.next){case 0:case"end":return n.stop()}}),n)})))()},methods:{}});u.render=r;e["default"]=u}}]);
+//# sourceMappingURL=chunk-2d21f24b.2a6547d5.js.map

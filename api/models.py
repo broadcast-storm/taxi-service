@@ -17,15 +17,27 @@ class News(models.Model):
         (PUBLISHED, 'Опубликована'),
     )
 
+    NEWS = 'news'
+    OFFER = 'offer'
+    TYPE_CHOICES = (
+        (NEWS, 'новость'),
+        (OFFER, 'акция'),
+    )
+
     title = models.CharField(
         max_length=200, verbose_name="Название новости", unique=True)
     description = models.TextField(
         verbose_name="Описание новости", blank=True)
+    content = models.TextField(
+        verbose_name="Основной контент", blank=True)
     image = models.ImageField(
         verbose_name="Картинка новости", null=True, blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=DRAFT,
                               verbose_name="Статус новости")
+
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES, default=NEWS,
+                              verbose_name="Тип новости")
 
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата создания")
@@ -131,14 +143,14 @@ class Car(models.Model):
     LADA = 'LADA'
     CHEVROLET = 'CHEVROLET'
     HYUNDAI = 'HYUNDAI'
-    MERSEDES = 'MERSEDES'
+    MERCEDES = 'MERCEDES'
     PEUGEOT = 'PEUGEOT'
     BRAND_CHOICES = (
         (BMW, 'BMW'),
         (LADA, 'Lada'),
         (CHEVROLET, 'Chevrolet'),
         (HYUNDAI, 'Hyundai'),
-        (MERSEDES, 'Mersedes'),
+        (MERCEDES, 'Mercedes'),
         (PEUGEOT, 'Peugeot'),
     )
 
@@ -229,12 +241,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         default=False, verbose_name="Доступ в админ панель")
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['name', 'surname']
+    REQUIRED_FIELDS = ['name', 'surname', 'phone']
 
     objects = UserProfileManager()
 
     userType = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default=USER,
                                 verbose_name="Тип пользователя")
+
+    phone = PhoneNumberField(
+        unique=True, blank=True, null=True, verbose_name="Телефон")
 
     name = models.CharField(max_length=100, blank=True, verbose_name="Имя")
     surname = models.CharField(
@@ -286,8 +301,6 @@ class Driver(models.Model):
         verbose_name="Фото водителя", blank=True, null=True)
     birthdate = models.DateField(
         verbose_name="Дата рождения",)
-    phone = PhoneNumberField(
-        unique=True, verbose_name="Телефон")
     workExperience = models.IntegerField(
         default=0, validators=[MinValueValidator(0), MaxValueValidator(100)],  verbose_name="Опыт работы (кол-во лет)")
     driverLicense = models.CharField(
@@ -335,8 +348,6 @@ class Operator(models.Model):
         verbose_name="Фото оператора", blank=True, null=True)
     birthdate = models.DateField(
         verbose_name="Дата рождения")
-    phone = PhoneNumberField(
-        unique=True, verbose_name="Телефон")
     workExperience = models.IntegerField(
         default=0, validators=[MinValueValidator(0), MaxValueValidator(100)],  verbose_name="Опыт работы (кол-во лет)")
     operatorStatus = models.CharField(max_length=30, choices=OPERATOR_STATUS_CHOICES, default=NONWORKING_TIME,

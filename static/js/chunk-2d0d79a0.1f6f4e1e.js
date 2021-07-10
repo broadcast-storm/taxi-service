@@ -1,0 +1,2 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d0d79a0"],{7809:function(n,o,t){"use strict";t.r(o);var r=t("7a23");function e(n,o,t,e,a,s){return Object(r["p"])(),Object(r["d"])("div",null,"Forgot Password")}var a=t("66be"),s={name:"ForgotPassword",components:{},data:function(){return{routesList:a["a"]}}};s.render=e;o["default"]=s}}]);
+//# sourceMappingURL=chunk-2d0d79a0.1f6f4e1e.js.map
