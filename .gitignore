@@ -9,7 +9,6 @@ media/**.*
 logs/*.log
 frontend/package-lock.json
 frontend/yarn.lock
-frontend/dist/**.*
 # local env files
 core/.env
 frontend/.env.production
