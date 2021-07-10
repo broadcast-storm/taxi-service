@@ -235,7 +235,6 @@ class closeCurrentOrderAPIView(APIView):
     def post(self, request):
         id = request.data.get('id', None)
         order = Order.objects.get(id=id)
-        print(order)
         order.orderStatus = 'client_canceled'
         order.save()
         return Response( status=status.HTTP_200_OK)
