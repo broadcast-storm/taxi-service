@@ -6,8 +6,7 @@ from rest_framework import permissions
 from core import settings
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from core.views import index
-
+from core.views import index, indexForNews
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -22,6 +21,15 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('', index, name='index'),
+    path('news/', index, name='index'),
+    path('drivers/', index, name='index'),
+    path('profile/', index, name='index'),
+    path('profile/order-car/', index, name='index'),
+    path('prices/', index, name='index'),
+    path('news/<int:id>', indexForNews, name='index'),
+    path('auth/sign-in/', index, name='index'),
+    path('auth/sign-up/', index, name='index'),
+    path('auth/forgot-password/', index, name='index'),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     url(r'^swagger/$', schema_view.with_ui('swagger',
